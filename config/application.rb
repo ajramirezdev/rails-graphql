@@ -46,7 +46,7 @@ module Graphql
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Don't generate system test files.
-    Rails.application.config.middleware.insert_before ActionDispatch::Static, Rack::Cors do
+    Rails.application.config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins "http://localhost:5173" # Replace with your frontend's origin
 
