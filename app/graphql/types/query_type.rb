@@ -11,6 +11,8 @@ module Types
       argument :id, ID, required: true
     end
 
+    field :me, UserType, null: false
+
     def users
       User.all
     end
@@ -25,6 +27,10 @@ module Types
 
     def post(id:)
       Post.find(id)
+    end
+
+    def me
+      context[:current_user]
     end
   end
 end

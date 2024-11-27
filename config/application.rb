@@ -53,8 +53,8 @@ module Graphql
 
         resource "*",
                  headers: :any,
-                 methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
-                 expose: [ "Authorization" ] # Expose headers if needed (e.g., for JWT)
+                 methods: [ :get, :post, :put, :patch, :delete, :options, :head ]
+        #  expose: [ "Authorization" ] # Expose headers if needed (e.g., for JWT)
       end
     end
 

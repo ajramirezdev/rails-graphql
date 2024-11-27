@@ -4,7 +4,9 @@ class GraphqlController < ApplicationController
   # If accessing from outside this domain, nullify the session
   # This allows for outside API access while preventing CSRF attacks,
   # but you'll have to authenticate your user separately
+  skip_before_action :verify_authenticity_token
   protect_from_forgery with: :null_session
+
 
   def execute
     variables = prepare_variables(params[:variables])
@@ -54,10 +56,22 @@ class GraphqlController < ApplicationController
     return nil if token.blank?
 
     begin
-      decoded_token = JWT.decode(token, "my_secret", true, algorithm: "HS256")
-      User.find_by(id: decoded_token[0]["user_id"])
+      decoded_token = JWT.decode(token, "my_secret", true)
+      user_id = decoded_token[0]["user_id"]
+      user = User.find_by(id: user_id)
+
+      if decoded_token[0]["exp"] < Time.now.to_i
+        logger.error("Token has expired")
+        nil
+      end
+
+      user
+
     rescue JWT::DecodeError => e
       logger.error("JWT Decode Error: #{e.message}")
+      nil
+    rescue JWT::ExpiredSignature => e
+      logger.error("JWT Expired Error: #{e.message}")
       nil
     end
   end

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Types
   class UserType < Types::BaseObject
     field :id, ID, null: false
@@ -10,6 +8,8 @@ module Types
 
     field :posts_count, Integer, null: false
     field :posts, [ Types::PostType ], null: false
+
+    field :admin, Boolean, null: false
 
     def posts_count
       object.posts.size

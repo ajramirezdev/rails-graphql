@@ -6,14 +6,18 @@ class Mutations::DeletePost < Mutations::BaseMutation
   field :errors, [ String ], null: true
 
   def resolve(id:)
+    user = context[:current_user]
+
+    return { post: nil, message: nil, errors: [ "User must be logged in." ] } unless user
+
     post = Post.find_by(id: id)
 
-    if post.nil?
-      { message: nil, errors: [ "Post not found" ] }
-    elsif post.destroy
+    return { id: nil, message: nil, errors: [ "You cannot delete this post." ] } unless post && (user == post.user || user.admin?)
+
+    if post.destroy
       { id: id, message: "Post successfully deleted.", errors: [] }
     else
-      { message: nil, errors: post.errors.full_messages }
+      { id: nil, message: nil, errors: [ "Failed to delete post." ] }
     end
   end
 end
