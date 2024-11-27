@@ -80,9 +80,9 @@ test:
 production:
     primary: &primary_production
         <<: *default
-        url: <%= ENV["MY_APP_DATABASE_URL"] %>
+        url: <%= ENV["DATABASE_URL"] %>
         database: graphql_production
-        username: graphql
+        username: ajramirez
         password: <%= ENV["GRAPHQL_DATABASE_PASSWORD"] %>
     cache:
         <<: *primary_production
