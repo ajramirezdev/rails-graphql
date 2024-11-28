@@ -6,7 +6,11 @@ module Types
     field :user, UserType, null: false do
       argument :id, ID, required: true
     end
-    field :posts, [ PostType ], null: false
+
+    field :posts, [ Types::PostType ], null: false do
+      argument :limit, Integer, required: false
+      argument :offset, Integer, required: false
+    end
     field :post, PostType, null: false do
       argument :id, ID, required: true
     end
@@ -14,6 +18,7 @@ module Types
     field :me, UserType, null: false
 
     def users
+      authenticate_user!
       User.all
     end
 
@@ -21,8 +26,8 @@ module Types
       User.find(id)
     end
 
-    def posts
-      Post.all
+    def posts(limit: nil, offset: nil)
+      Post.all.limit(limit).offset(offset).order("updated_at DESC")
     end
 
     def post(id:)
@@ -32,5 +37,11 @@ module Types
     def me
       context[:current_user]
     end
+
+    private
+
+      def authenticate_user!
+        raise GraphQL::ExecutionError, "User must be logged in." unless context[:current_user]
+      end
   end
 end
