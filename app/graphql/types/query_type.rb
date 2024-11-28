@@ -15,7 +15,7 @@ module Types
       argument :id, ID, required: true
     end
 
-    field :me, UserType, null: false
+    field :me, UserType, null: true
 
     def users
       authenticate_user!
