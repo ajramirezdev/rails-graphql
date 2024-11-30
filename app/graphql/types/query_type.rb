@@ -19,6 +19,13 @@ module Types
 
     field :me, UserType, null: true
 
+    field :findMatch, [ UserType ], null: false do
+      argument :limit, Integer, required: false
+      argument :offset, Integer, required: false
+    end
+
+    field :matchCount, Integer, null: false
+
     def users
       authenticate_user!
       User.all
@@ -42,6 +49,34 @@ module Types
 
     def me
       context[:current_user]
+    end
+
+    def findMatch(limit: nil, offset: nil)
+      authenticate_user!
+
+      current_user = context[:current_user]
+      gender = current_user.gender
+      gender_interest = current_user.gender_interest
+
+      matches = User.where(gender: gender_interest)
+                .where(gender_interest: gender)
+                .where.not(id: current_user.id)
+
+      matches = matches.limit(limit).offset(offset) if limit || offset
+
+      matches
+    end
+
+    def matchCount
+      authenticate_user!
+
+      current_user = context[:current_user]
+      gender = current_user.gender
+      gender_interest = current_user.gender_interest
+
+      User.where(gender: gender_interest)
+        .where(gender_interest: gender)
+        .where.not(id: current_user.id).count
     end
 
     private
