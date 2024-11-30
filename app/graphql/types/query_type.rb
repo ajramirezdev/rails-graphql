@@ -15,6 +15,8 @@ module Types
       argument :id, ID, required: true
     end
 
+    field :postsCount, Integer, null: false
+
     field :me, UserType, null: true
 
     def users
@@ -32,6 +34,10 @@ module Types
 
     def post(id:)
       Post.find(id)
+    end
+
+    def postsCount
+      Post.count
     end
 
     def me
