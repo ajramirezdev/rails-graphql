@@ -24,10 +24,13 @@ module Types
       argument :offset, Integer, required: false
     end
 
+    field :likedUsers, [ UserType ], null: false
+    field :myMatches, [ UserType ], null: false
+
     field :matchCount, Integer, null: false
 
     def users
-      authenticate_user!
+      authenticate_admin!
       User.all
     end
 
@@ -79,10 +82,27 @@ module Types
         .where.not(id: current_user.id).count
     end
 
+    def likedUsers
+      user = context[:current_user]
+      return [] unless user
+      user.liked_users
+    end
+
+    def myMatches
+      user = context[:current_user]
+      return [] unless user
+      user.user_matches
+    end
+
     private
 
       def authenticate_user!
         raise GraphQL::ExecutionError, "User must be logged in." unless context[:current_user]
+      end
+
+      def authenticate_admin!
+        raise GraphQL::ExecutionError, "User must be logged in." unless context[:current_user]
+        raise GraphQL::ExecutionError, "You do not have permission to perform this action." unless context[:current_user].admin?
       end
   end
 end

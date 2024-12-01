@@ -22,8 +22,19 @@ module Types
     field :posts_count, Integer, null: false
     field :posts, [ Types::PostType ], null: false
 
+    field :liked_users, [ Types::UserType ], null: false
+    field :matches, [ Types::UserType ], null: false
+
     def posts_count
       object.posts.size
+    end
+
+    def liked_users
+      object.liked_users
+    end
+
+    def matches
+      object.user_matches
     end
   end
 end

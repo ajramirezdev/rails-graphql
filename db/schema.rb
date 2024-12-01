@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_11_30_014509) do
+ActiveRecord::Schema[8.0].define(version: 2024_11_30_123124) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,6 +22,26 @@ ActiveRecord::Schema[8.0].define(version: 2024_11_30_014509) do
     t.datetime "updated_at", null: false
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "likes", force: :cascade do |t|
+    t.integer "liker_id", null: false
+    t.integer "liked_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["liked_id"], name: "index_likes_on_liked_id"
+    t.index ["liker_id", "liked_id"], name: "index_likes_on_liker_id_and_liked_id", unique: true
+    t.index ["liker_id"], name: "index_likes_on_liker_id"
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.bigint "user_1_id", null: false
+    t.bigint "user_2_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_1_id", "user_2_id"], name: "index_matches_on_user_1_id_and_user_2_id", unique: true
+    t.index ["user_1_id"], name: "index_matches_on_user_1_id"
+    t.index ["user_2_id"], name: "index_matches_on_user_2_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -57,5 +77,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_11_30_014509) do
 
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
+  add_foreign_key "matches", "users", column: "user_1_id"
+  add_foreign_key "matches", "users", column: "user_2_id"
   add_foreign_key "posts", "users"
 end
