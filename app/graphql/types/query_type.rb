@@ -7,6 +7,10 @@ module Types
       argument :id, ID, required: true
     end
 
+    field :match, MatchType, null: false do
+      argument :id, ID, required: true
+    end
+
     field :posts, [ Types::PostType ], null: false do
       argument :limit, Integer, required: false
       argument :offset, Integer, required: false
@@ -29,6 +33,12 @@ module Types
 
     field :matchCount, Integer, null: false
 
+    field :test, String, null: false
+
+    def test
+      "Subscription works!"
+    end
+
     def users
       authenticate_admin!
       User.all
@@ -36,6 +46,18 @@ module Types
 
     def user(id:)
       User.find(id)
+    end
+
+    def match(id:)
+      user1 = context[:current_user]
+      user2 = User.find(id)
+
+      match = Match.find_by(
+      "(user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)",
+      user1.id, user2.id, user2.id, user1.id
+      )
+
+      match
     end
 
     def posts(limit: nil, offset: nil)

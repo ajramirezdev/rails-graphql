@@ -12,5 +12,6 @@ module Types
    field :edit_user, mutation: Mutations::EditUser
    field :me_like, mutation: Mutations::MeLike
    field :me_delete_like, mutation: Mutations::MeDeleteLike
+   field :create_message, mutation: Mutations::CreateMessage
   end
 end
