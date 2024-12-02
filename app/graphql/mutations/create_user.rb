@@ -42,7 +42,6 @@ class Mutations::CreateUser < Mutations::BaseMutation
     school: school,
     bio: bio,
     images: images,
-    admin: true
   )
 
     if user.save
