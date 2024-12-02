@@ -21,7 +21,7 @@ class Mutations::CreateMessage < Mutations::BaseMutation
     message = match.messages.new(user: user1, content:)
 
     if message.save
-      Subscriptions::MessageCreated.trigger(message)
+      # Subscriptions::MessageCreated.trigger(message)
       { message:, errors: [] }
     else
       { message: nil, errors: message.errors.full_messages }

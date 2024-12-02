@@ -1,7 +1,8 @@
 class MatchChannel < ApplicationCable::Channel
   def subscribed
     # Stream from a specific match channel (e.g., based on match ID)
-    stream_from "match_#{params[:match_id]}_channel"
+    match = Match.find_by(id: params[:match_id])
+    stream_for match if match
   end
 
   def unsubscribed

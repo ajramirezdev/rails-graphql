@@ -1,8 +1,7 @@
 class GraphqlChannel < ApplicationCable::Channel
   def subscribed
+    # Store all GraphQL subscriptions the consumer is listening for on this channel
     @subscription_ids = []
-    @current_user = current_user
-    reject_unauthorized_connection unless @current_user
   end
 
   def execute(data)
@@ -10,14 +9,10 @@ class GraphqlChannel < ApplicationCable::Channel
     variables = ensure_hash(data["variables"])
     operation_name = data["operationName"]
     context = {
-      # Re-implement whatever context methods you need
-      # in this channel or ApplicationCable::Channel
-      current_user: @current_user,
-      # Make sure the channel is in the context
       channel: self
     }
 
-    result = GraphqlSchema.execute({
+    result = Schema.execute({
       query: query,
       context: context,
       variables: variables,
@@ -29,39 +24,35 @@ class GraphqlChannel < ApplicationCable::Channel
       more: result.subscription?
     }
 
-    # Track the subscription here so we can remove it
-    # on unsubscribe.
-    if result.context[:subscription_id]
-      @subscription_ids << result.context[:subscription_id]
-    end
+    # Append the subscription id
+    @subscription_ids << result.context[:subscription_id] if result.context[:subscription_id]
 
     transmit(payload)
   end
 
   def unsubscribed
-    @subscription_ids.each { |sid|
-      GraphqlSchema.subscriptions.delete_subscription(sid)
-    }
+    # Delete all of the consumer's subscriptions from the GraphQL Schema
+    @subscription_ids.each do |sid|
+      Schema.subscriptions.delete_subscription(sid)
+    end
   end
 
   private
 
-    def ensure_hash(ambiguous_param)
-      Rails.logger.debug("Executing query: #{query}")
-      Rails.logger.debug("Subscription IDs: #{@subscription_ids}")
-      case ambiguous_param
-      when String
-        if ambiguous_param.present?
-          ensure_hash(JSON.parse(ambiguous_param))
-        else
-          {}
-        end
-      when Hash, ActionController::Parameters
-        ambiguous_param
-      when nil
-        {}
+  def ensure_hash(ambiguous_param)
+    case ambiguous_param
+    when String
+      if ambiguous_param.present?
+        ensure_hash(JSON.parse(ambiguous_param))
       else
-        raise ArgumentError, "Unexpected parameter: #{ambiguous_param}"
+        {}
       end
+    when Hash, ActionController::Parameters
+      ambiguous_param
+    when nil
+      {}
+    else
+      raise ArgumentError, "Unexpected parameter: #{ambiguous_param}"
     end
+  end
 end
