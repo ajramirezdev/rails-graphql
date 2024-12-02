@@ -14,6 +14,8 @@ class Mutations::CreatePost < Mutations::BaseMutation
     post = user.posts.new(title:, content:)
 
     if post.save
+      GraphQL::Subscriptions.trigger("postCreated", post)
+      ApplicationSubscription.trigger("postCreated", {}, post)
       { post: post, user: user, errors: [] }
     else
       { post: nil, user: nil, errors: post.errors.full_messages }
